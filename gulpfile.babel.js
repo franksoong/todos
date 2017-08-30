@@ -2,107 +2,84 @@ import del from "del";
 import path from "path";
 import gulp from "gulp";
 import open from "open";
-import rename from 'gulp-rename'
 import gulpLoadPlugins from "gulp-load-plugins";
 import runSequence from "run-sequence";
+import shell from 'shelljs';
 import webpack from "webpack";
-import webpackDevConfig, {publicPath as devPublicPath} from "./webpack.config.dev";
-import webpackProdConfig, {publicPath as prodPublicPath}  from "./webpack.config.prod";
-import WebpackDevServer from "webpack-dev-server";
-import build from "./tools/build";
-import prodServer from "./tools/prodServer";
-import devServer from "./tools/devServer";
-
-
+import webpackProdConfig from "./configs/webpack.config.prod.babel";
+import prodBuild from "./configs/prodBuild";
+import prodServer from "./configs/prodServer";
 
 const $ = gulpLoadPlugins({ camelize: true });
-
-const dev = webpackDevConfig.output.path;
-const prod = webpackProdConfig.output.path;
-const devPub = path.join(path.basename(dev), devPublicPath);
-const prodPub = path.join(path.basename(prod), prodPublicPath);
+const outdir = webpackProdConfig.output.path;
 
 
 // Main tasks
-gulp.task('dev', () => runSequence('dev:start'));
-gulp.task('dist', () => runSequence('dist:build', 'dist:index', 'dist:start'));
-gulp.task('clean', ['dist:clean', 'dev:clean']);
+gulp.task('dev', () => runSequence('webpack:dev'));
+gulp.task('dist', () => runSequence('webpack:prod', 'copy:assets', 'copy:manifest', 'dist:serve', 'open'));
+gulp.task('clean', ['dist:clean']);
 gulp.task('open', () => open('http://localhost:3000'));
 
 // For dev
-gulp.task('dev:clean', cb => del(dev, { dot: true }, cb));
-
-
-//// webpack build
-gulp.task('dev:build', ['dev:clean'], cb => {
-    return build('dev', cb);
-});
-
-//// Copy our index file and inject css/script imports for this build
-gulp.task('dev:index', () => {
-    // Build the index.html using the names of compiled files
-    return gulp.src('src/index.html')
-        .pipe($.injectString.after('<!-- inject:app:js -->', '<script src="static/bundle.js"></script>'))
-        .on("error", $.util.log)
-        .pipe(gulp.dest(dev));
-});
-
-//// Copy static files across to our final directory
-gulp.task('dev:static', () =>
-    gulp.src([
-        'src/static/**'
-    ])
-    .pipe($.changed(dev))
-    .pipe(gulp.dest(dev))
-    .pipe($.size({ title: 'static' }))
-);
-
 //// Start a livereloading development server
-gulp.task('dev:start',['dev:index', 'dev:static'], cb => {
-    return devServer(cb);
+gulp.task('webpack:dev', () => {
+    // Run external tool synchronously
+    let cmd = "webpack-dev-server --config ./configs/webpack.config.dev.babel.js --env=developement";
+    if (shell.exec(cmd).code !== 0) {
+        shell.echo('webpack-dev-server start failed!');
+        shell.exit(1);
+    };
 });
 
 
 // For dist
-gulp.task('dist:clean', cb => del([prod], { dot: true }, cb));
+gulp.task('dist:clean', cb => del([outdir], { dot: true }, cb));
 
-//// webpack build
-gulp.task('dist:build', ['dist:clean'], cb => {
-    return build('prod', cb);
-});
+gulp.task('copy:assets', () => {
+    let cssdir = path.join(outdir, 'css1');
+    let fontsdir = path.join(outdir, 'fonts');
+    let imagesdir = path.join(outdir, 'images');
 
-//// Copy our index file and inject css/script imports for this build
-gulp.task('dist:index', () => {
-    // TODO
-    /*
-    const pub = path.join(path.basename(prod), prodPublicPath);
-    const app = gulp
-        .src(["*.{css,js}"], { cwd: prod })
-        .pipe(gulp.dest(pub));
-
-    // Build the index.html using the names of compiled files
-    return gulp.src('src/index.html')
-        .pipe($.inject(app, {
-            ignorePath: path.basename(prod),
-            starttag: '<!-- inject:app:{{ext}} -->'
-        }))
-        .on("error", $.util.log)
-        .pipe(gulp.dest(prod));
-    */
-});
-
-
-//// Copy static files across to our final directory
-gulp.task('dist:static', () =>
     gulp.src([
-        'src/static/**'
-    ])
-    .pipe(gulp.dest(prod))
-    .pipe($.size({ title: 'static' }))
-);
+            'src/assets/**/*.css'
+        ])
+        .pipe($.changed(cssdir))
+        .pipe(gulp.dest(cssdir))
+        .pipe($.size({ title: 'css' }))
 
+    gulp.src([
+            'src/assets/fonts/**'
+        ])
+        .pipe($.changed(fontsdir))
+        .pipe(gulp.dest(fontsdir))
+        .pipe($.size({ title: 'fonts' }))
+        
+    gulp.src([
+            'src/assets/images/**'
+        ])
+        .pipe($.changed(imagesdir))
+        .pipe(gulp.dest(imagesdir))
+        .pipe($.size({ title: 'images' }))
+});
+
+
+gulp.task('copy:manifest', () => {
+    gulp.src([
+            'src/manifest.json'
+        ])
+        .pipe($.changed(outdir))
+        .pipe(gulp.dest(outdir))
+        .pipe($.size({ title: 'manifest.json' }))
+});
+
+
+gulp.task('dist:serve', (cb) => {
+    return prodServer(cb);
+});
 
 //// Create a distributable package
-gulp.task('dist:start', ['dist:static'], cb => {
-    return prodServer(cb);
+gulp.task('webpack:prod', (cb) => {
+    // Run external tool synchronously
+    // let cmd = "set NODE_ENV=production && webpack --config ./config/webpack.config.prod.babel.js --env=production";
+    return prodBuild(cb);
 });
