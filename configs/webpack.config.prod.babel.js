@@ -11,34 +11,34 @@ const basePath = path.join(__dirname, '..', 'src');
 
 export default config({
 
-    devtool: 'source-map',
+  devtool: 'source-map',
 
-    plugins: [
+  plugins: [
 
-        new webpack.DefinePlugin({
-            'process.env.NODE_ENV': JSON.stringify('production')
-        }),
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify('production')
+    }),
 
-        new webpack.LoaderOptionsPlugin({
-            minimize: true,
-            debug: false,
-            noInfo: true, // set to false to see a list of every file being bundled.
-        }),
+    new webpack.LoaderOptionsPlugin({
+      minimize: true,
+      debug: false,
+      noInfo: true, // set to false to see a list of every file being bundled.
+    }),
 
-        // Generate an external css file with a hash in the filename
-        new ExtractTextPlugin('[name].[contenthash].css', {
-            allChunks: false
-        }),
+    // Generate an external css file with a hash in the filename
+    new ExtractTextPlugin('[name].[contenthash].css', {
+      allChunks: false
+    }),
 
-        // Minify JS, https://github.com/mishoo/UglifyJS2#usage
-        // http://webpack.github.io/docs/list-of-plugins.html#uglifyjsplugin
-        new webpack.optimize.UglifyJsPlugin({
-            compress: {
-                warnings: false,
-                drop_console: true,
-            },
-            sourceMap: false,
-            output: { comments: false },
-        }),
-    ]
+    // Minify JS, https://github.com/mishoo/UglifyJS2#usage
+    // http://webpack.github.io/docs/list-of-plugins.html#uglifyjsplugin
+    new webpack.optimize.UglifyJsPlugin({
+      compress: {
+        warnings: false,
+        drop_console: true,
+      },
+      sourceMap: false,
+      output: { comments: false },
+    }),
+  ]
 });

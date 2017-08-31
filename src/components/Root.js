@@ -5,8 +5,14 @@ import App from './App';
 
 const Root = ({ store }) => (
   <Provider store={store}>
-    <Router history={browserHistory}>
-      <Route path="/(:filter)" component={App} />
+    <Router onUpdate={() => window.scrollTo(0, 0)} history={browserHistory}>
+      <Route path="/(:filter)" component={App} >
+      {
+         // for complex route case please check: git@github.com:franksoong/express-react-redux-starter.git
+         // <IndexRoute component={Home} />;
+         // <Route path="/about" component={About} />
+      }
+      </Route>
     </Router>
   </Provider>
 );

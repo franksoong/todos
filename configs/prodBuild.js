@@ -14,29 +14,29 @@ import packageJson from '../package.json';
  */
 const run = (cb) => {
 
-    const spinner = ora('building for production mode...\n');
-    spinner.start();
+  const spinner = ora('building for production mode...\n');
+  spinner.start();
 
-    //build
-    webpack(config).run((error, stats) => {
-        spinner.stop();
-        if (error) throw error;
-        process.stdout.write(stats.toString({
-            colors: true,
-            modules: true,
-            //reasons:true,
-            children: false,
-            chunks: false,
-            chunkModules: false
-        }) + '\n\n');
+  //build
+  webpack(config).run((error, stats) => {
+    spinner.stop();
+    if (error) throw error;
+    process.stdout.write(stats.toString({
+      colors: true,
+      modules: true,
+      //reasons:true,
+      children: false,
+      chunks: false,
+      chunkModules: false
+    }) + '\n\n');
 
-        console.log(chalk.cyan('  Build complete for package ', packageJson.name, '.\n'));
-        console.log(chalk.yellow('  Tip: built files are meant to be served over an HTTP server.\n'));
+    console.log(chalk.cyan('  Build complete for package ', packageJson.name, '.\n'));
+    console.log(chalk.yellow('  Tip: built files are meant to be served over an HTTP server.\n'));
 
-        if (typeof cb === 'function') {
-            cb();
-        };
-    });
+    if (typeof cb === 'function') {
+      cb();
+    };
+  });
 };
 
 
