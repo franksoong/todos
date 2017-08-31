@@ -1,7 +1,7 @@
 {
-  "name": "Preact minimal",
+  "name": "test",
   "short_name": "minimal",
-  "start_url": "/?utm_source=homescreen",
+  "start_url": "",
   "background_color": "#673ab8",
   "theme_color": "#2b313c",
   "display": "standalone",

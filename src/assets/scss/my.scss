@@ -1,5 +1,12 @@
-$link-color: blue;
-$link-color: red;
-a {
-color: $link-color;
+$color1: #80b8ed;
+$color2: #c42fc4;
+
+
+
+body {
+  background: $color1;
+}
+
+.my{
+    background:$color2;
 }

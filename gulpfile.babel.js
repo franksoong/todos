@@ -16,7 +16,7 @@ const outdir = webpackProdConfig.output.path;
 
 // Main tasks
 gulp.task('dev', () => runSequence('webpack:dev'));
-gulp.task('dist', () => runSequence('webpack:prod', 'copy:assets', 'copy:manifest', 'dist:serve', 'open'));
+gulp.task('dist', () => runSequence('clean', 'copy:assets', 'copy:manifest', 'webpack:prod', 'dist:serve', 'open'));
 gulp.task('clean', ['dist:clean']);
 gulp.task('open', () => open('http://localhost:3000'));
 
@@ -33,7 +33,15 @@ gulp.task('webpack:dev', () => {
 
 
 // For dist
-gulp.task('dist:clean', cb => del([outdir], { dot: true }, cb));
+gulp.task('dist:clean', cb => {
+    //or del([outdir], { dot: true }, cb)
+
+    let assetsPath = path.join(outdir);
+    shell.rm('-rf', assetsPath);
+    shell.mkdir('-p', assetsPath);
+
+    cb();
+});
 
 gulp.task('copy:assets', () => {
     let cssdir = path.join(outdir, 'css1');
@@ -45,21 +53,21 @@ gulp.task('copy:assets', () => {
         ])
         .pipe($.changed(cssdir))
         .pipe(gulp.dest(cssdir))
-        .pipe($.size({ title: 'css' }))
+        .pipe($.size({ title: 'copy css' }))
 
     gulp.src([
             'src/assets/fonts/**'
         ])
         .pipe($.changed(fontsdir))
         .pipe(gulp.dest(fontsdir))
-        .pipe($.size({ title: 'fonts' }))
+        .pipe($.size({ title: 'copy fonts' }))
         
     gulp.src([
             'src/assets/images/**'
         ])
         .pipe($.changed(imagesdir))
         .pipe(gulp.dest(imagesdir))
-        .pipe($.size({ title: 'images' }))
+        .pipe($.size({ title: 'copy images' }))
 });
 
 

@@ -4,7 +4,7 @@ import path from 'path';
 import packageJson from '../package.json';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
-import autoprefixer from 'autoprefixer';
+import postcss, {scssLoader} from './postcss.config';
 
 
 const basePath = path.join(__dirname, '..', 'src');
@@ -49,6 +49,8 @@ export default ({
                 name: 'vendor',
                 filename: '[name].[hash].js'
             }),
+
+            new webpack.LoaderOptionsPlugin({ options: { postcss } }),
 
         ].concat(plugins),
 
@@ -110,23 +112,21 @@ export default ({
                 },
 
                 // Load styles
-                {
-                    test: /(\.css|\.scss|\.sass)$/,
-                    loader: ExtractTextPlugin.extract('css-loader?sourceMap!postcss-loader!sass-loader?sourceMap')
-                }
+                scssLoader(env),
             ]
         },
 
+        // http://webpack.github.io/docs/webpack-dev-server.html
         devServer: {
             //Display no info to console (only warnings and errors)
             noInfo: true,
             port: 3000,
-            contentBase: path.join(basePath, 'assets'),
+            contentBase: path.join(basePath, 'assets'),  //Content not from webpack is served from here
             proxy: {},
             historyApiFallback: false,
             compress: true,
             open: true,
-            clientLogLevel: "info",
+            clientLogLevel: 'info',
             setup: function(app) {
                 // Here you can access the Express app object and add your own custom middleware to it.
                 // For example, to define custom handlers for some paths:

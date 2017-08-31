@@ -17,11 +17,6 @@ const run = (cb) => {
     const spinner = ora('building for production mode...\n');
     spinner.start();
 
-    const assetsPath = path.join(config.output.path);
-    shell.rm('-rf', assetsPath);
-    shell.mkdir('-p', assetsPath);
-    shell.config.silent = false;
-
     //build
     webpack(config).run((error, stats) => {
         spinner.stop();
