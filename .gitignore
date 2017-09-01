@@ -10,6 +10,7 @@ yarn-error.log*
 dist
 build
 out
+release
 
 # backup file such as .orig
 *.orig
