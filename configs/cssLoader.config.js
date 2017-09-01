@@ -12,7 +12,7 @@ const scssLoader = (env) => {
   };
 
 
-  // require option for postcss-loader,  
+  // require option for postcss-loader,
   // or will cause No PostCSS Config found error
   // https://www.npmjs.com/package/postcss-loader
   const postCssLoaderOptions = {
