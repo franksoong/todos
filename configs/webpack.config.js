@@ -32,7 +32,7 @@ export default ({
     },
 
     // more info:https://webpack.github.io/docs/build-performance.html#sourcemaps and https://webpack.github.io/docs/configuration.html#devtool
-    devtool,
+    devtool: devtool,
 
     plugins: [
       // Generate HTML file that contains references to generated bundles. See here for how this works: https://github.com/ampedandwired/html-webpack-plugin#basic-usage
